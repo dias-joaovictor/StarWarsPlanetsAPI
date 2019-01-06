@@ -26,6 +26,13 @@
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
+			<dependency>
+				<groupId>org.hibernate.ogm</groupId>
+				<artifactId>hibernate-ogm-bom</artifactId>
+				<version>5.3.1.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -37,9 +44,8 @@
 				<artifactId>thorntail-maven-plugin</artifactId>
 				<version>${version.thorntail}</version>
 				<configuration>
-					<debug.port>9990</debug.port>
 					<properties>
-						<thorntail.debug.port>9990</thorntail.debug.port>
+						<swarm.debug.port>9990</swarm.debug.port>
 						<thorntail.http.port>8080</thorntail.http.port>
 					</properties>
 				</configuration>
@@ -75,12 +81,6 @@
 		<dependency>
 			<groupId>org.hibernate.ogm</groupId>
 			<artifactId>hibernate-ogm-mongodb</artifactId>
-			<version>5.0.0.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongo-java-driver</artifactId>
-			<version>3.8.0</version>
 		</dependency>
 	</dependencies>
 </project>

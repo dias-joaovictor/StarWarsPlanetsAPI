@@ -10,7 +10,7 @@
 		<properties>
 			<!-- DADOS CONEXAO -->
 			<property name="hibernate.ogm.datastore.provider"
-				value="mongodb" />
+				value="org.hibernate.ogm.datastore.mongodb.impl.MongoDBDatastoreProvider" />
 			<property name="hibernate.ogm.datastore.database"
 				value="starwarsdb" />
 			<property name="hibernate.ogm.datastore.host"

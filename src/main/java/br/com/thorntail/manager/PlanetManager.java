@@ -1,3 +1,4 @@
+
 package br.com.thorntail.manager;
 
 import java.util.concurrent.ConcurrentHashMap;

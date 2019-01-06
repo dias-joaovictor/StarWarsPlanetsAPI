@@ -9,8 +9,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.parboiled.parserunners.ProfilingParseRunner.Report;
-
 import br.com.thorntail.repository.PlanetRepository;
 
 @Path("/planets")
@@ -23,7 +21,7 @@ public class PlanetResource {
 	
 	
 	@GET
-	@Path("/{id}")
+	@Path("/id={id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPlanet(@PathParam("id") Long id) {
 		return Response.ok(planetRepository.findById(id)).build();
@@ -37,19 +35,20 @@ public class PlanetResource {
 	}
 	
 	@GET
+	@Path("/name={name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPlanetsByName(@PathParam("name") String name) {
+		return Response.ok(planetRepository.findByNameNative(name)).build();
+	}
+	
+	
+	
+	@GET
 	@Path("/vamosla")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response addAPlanet() {
 		planetRepository.persistirTest();
 		return Response.ok().build();
 	}
-	
-	
-//	@POST
-//	@Consumes(MediaType.APPLICATION_JSON)
-//	public Response add(Planet planet) {
-//		Integer id = planetManager.add(planet);
-//		return Response.created(UriBuilder.fromResource(this.getClass()).path(Integer.toString(id)).build()).build();
-//	}
 	
 }
