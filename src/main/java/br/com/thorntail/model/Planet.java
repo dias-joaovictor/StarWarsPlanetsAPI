@@ -27,9 +27,11 @@ public class Planet implements Serializable {
 	@Column(name = "CLIMATE", nullable = false)
 	private String climate;
 
-	@JsonIgnore
 	@Column(name = "TERRAIN", nullable = false)
 	private String terrain;
+	
+	@Column(name = "MOVIES", nullable = false)
+	private int movies;
 	
 	
 
@@ -77,9 +79,17 @@ public class Planet implements Serializable {
 		this.terrain = terrain;
 	}
 
-	@Override
-	public String toString() {
-		return "Planet [id=" + id + ", name=" + name + ", climate=" + climate + ", terrain=" + terrain + "]";
+	public int getMovies() {
+		return movies;
 	}
 
+	public void setMovies(int movies) {
+		this.movies = movies;
+	}
+
+	@Override
+	public String toString() {
+		return "Planet [id=" + id + ", name=" + name + ", climate=" + climate + ", terrain=" + terrain + ", movies="
+				+ movies + "]";
+	}
 }
