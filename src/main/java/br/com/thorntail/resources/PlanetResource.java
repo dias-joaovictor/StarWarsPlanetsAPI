@@ -13,11 +13,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import br.com.thorntail.manager.PlanetManager;
+import br.com.thorntail.exception.manager.BusinessException;
+import br.com.thorntail.exception.manager.PlanetNotFoundException;
 import br.com.thorntail.model.Planet;
 import br.com.thorntail.repository.PlanetRepository;
 import br.com.thorntail.service.PlanetService;
-import net.bytebuddy.implementation.bind.ParameterLengthResolver;
+import io.swagger.annotations.Api;
 
 @Path("/planets")
 @RequestScoped
@@ -49,20 +50,20 @@ public class PlanetResource {
 	@GET
 	@Path("/name={name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPlanetsByName(@PathParam("name") String name) {
-		return Response.ok(planetRepository.findByNameNative(name)).build();
+	public Response getPlanetsByName(@PathParam("name") String name) throws BusinessException {
+		return Response.ok(planetRepository.findByNameNativeQueryIgnoringCase(name)).build();
 	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addAPlanet(Planet planet) {
+	public Response addAPlanet(Planet planet) throws PlanetNotFoundException, BusinessException{
 		planetService.save(planet);
 		return Response.ok().build();
 	}
 	
 	@PUT
 	@Consumes
-	public Response updatePlanet(Planet planet) {
+	public Response updatePlanet(Planet planet) throws PlanetNotFoundException, BusinessException {
 		planetService.updatePlanet(planet);
 		return Response.ok().build();
 	}

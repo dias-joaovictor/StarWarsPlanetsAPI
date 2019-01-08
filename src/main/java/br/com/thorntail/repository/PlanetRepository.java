@@ -9,11 +9,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import br.com.thorntail.exception.manager.BusinessException;
+import br.com.thorntail.exception.manager.PlanetNotFoundException;
 import br.com.thorntail.model.Planet;
 
 @ApplicationScoped
 public class PlanetRepository {
 
+	private static final String INVALID_PARAM = "Invalid param";
 	private static final String FIND_BY_NAME_IGNORING_CASE = "db.Planet.aggregate([{ '$match': {'NAME': { '$regex': '^%s$', '$options': 'i' } } }])";
 	@Inject
 	private EntityManager entityManager;
@@ -24,22 +27,27 @@ public class PlanetRepository {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Planet> findByNameNative(String nameLike) {
+	public List<Planet> findByNameNativeQueryIgnoringCase(String nameLike) throws BusinessException{
 		if (nameLike != null && !nameLike.isEmpty()) {
 			String consulta = String.format(FIND_BY_NAME_IGNORING_CASE, nameLike.toLowerCase());
 			return entityManager.createNativeQuery(consulta, Planet.class).getResultList();
 		}
-		return new ArrayList<Planet>();
+		throw new BusinessException(INVALID_PARAM);
 	}
 
-	public Planet findById(Long id) throws NoResultException {
+	public Planet findById(Long id) throws PlanetNotFoundException {
 		String consulta = "SELECT planet FROM Planet planet where planet.id = :id";
-		return entityManager.createQuery(consulta, Planet.class).setParameter("id", id).getSingleResult();
+		Query query = entityManager.createQuery(consulta, Planet.class).setParameter("id", id);
+		try {
+			return (Planet) query.getSingleResult();
+		} catch (NoResultException e) {
+			throw new PlanetNotFoundException("No planet found with id: " + id);
+		}
 	}
 
 
 	public void save(Planet planet) {
-		if (planet != null) {
+		if (planet != null && planet.getName() != null) {
 			Planet planetFound = null;
 			String consulta = String.format(FIND_BY_NAME_IGNORING_CASE, planet.getName());
 			Query query = entityManager.createNativeQuery(consulta, Planet.class);
@@ -56,19 +64,21 @@ public class PlanetRepository {
 		}
 	}
 
-	public void update(Planet planet) {
+	public void update(Planet planet) throws PlanetNotFoundException, BusinessException{
 		if (planet != null && planet.getId() != null) {
 			Planet planetFound = null;
 			try {
 				planetFound = findById(planet.getId());
-			} catch (NoResultException ex) {
+			} catch (PlanetNotFoundException ex) {
 				//
 			}
 			if (planetFound != null) {
 				merge(planet);
 			} else {
-				// throw handledException
+				throw new PlanetNotFoundException("No planet found with id: " + planet.getId());
 			}
+		}else {
+			throw new BusinessException(INVALID_PARAM + ": id Param is needed.");
 		}
 	}
 

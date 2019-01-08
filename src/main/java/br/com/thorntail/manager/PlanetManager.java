@@ -18,6 +18,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import br.com.thorntail.exception.manager.BusinessException;
 import br.com.thorntail.model.Planet;
 
 @ApplicationScoped
@@ -29,15 +30,17 @@ public class PlanetManager {
 
 	private ConcurrentMap<String, Planet> inMemoryPlanetStorage = new ConcurrentHashMap<>();
 
-	public Optional<Planet> getInMemoryPlanet(String planetName) {
+	public Optional<Planet> getInMemoryPlanet(String planetName) throws BusinessException {
 		if (planetName != null) {
+			Long startTime = System.currentTimeMillis();
 			loadInMemoryPlanets();
+			System.out.println("Tempo total => "+ (System.currentTimeMillis() - startTime)/1000 +" segundos");
 			return Optional.<Planet>ofNullable(inMemoryPlanetStorage.get(planetName.toLowerCase()));
 		}
 		return Optional.<Planet>empty();
 	}
 
-	private void loadInMemoryPlanets() {
+	private void loadInMemoryPlanets() throws BusinessException{
 		if (inMemoryPlanetStorage.isEmpty() && inMemoryPlanetStorage.size() != PLANETS_TOTAL_MAPPEDS) {
 			inMemoryPlanetStorage.clear();
 			for (int i = 1; i <= PLANETS_TOTAL_MAPPEDS; i++) {
@@ -47,7 +50,8 @@ public class PlanetManager {
 		}
 	}
 
-	private void populateInMemoryPlanetStorage(Integer urlParam) {
+	private void populateInMemoryPlanetStorage(Integer urlParam) throws BusinessException {
+		Long startTime = System.currentTimeMillis();
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 		HttpUriRequest getRequest = new HttpGet(MessageFormat.format(HTTPS_URL_SWAPI, Integer.toString(urlParam)));
 		getRequest.addHeader(HttpHeaders.ACCEPT, "application/json");
@@ -57,14 +61,15 @@ public class PlanetManager {
 			JSONObject jsonObject = new JSONObject(content);
 
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				addPlanet(jsonObject);
+				addInMemoryPlanet(jsonObject);
 			}
+			System.out.println("Tempo total requisicao "+ urlParam +" => "+ (System.currentTimeMillis() - startTime) +" milisegundos");
 		} catch (IOException e) {
-			// handle exception
+			throw new BusinessException(e);
 		}
 	}
 
-	private void addPlanet(JSONObject jsonObject) {
+	private void addInMemoryPlanet(JSONObject jsonObject) {
 		Planet planet = new Planet();
 		planet.setName((String) jsonObject.get("name"));
 		planet.setClimate((String) jsonObject.get("climate"));
