@@ -10,7 +10,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -29,6 +28,19 @@ import io.swagger.annotations.SwaggerDefinition;
 @Path("/planets")
 @RequestScoped
 @Api(value = "/planets")
+@SwaggerDefinition (
+info = @Info (
+        title = "Planet Basic Crud",
+        description = "The way to manage your Planet!!! 05/04(May the Forth) be with you",
+        contact = @Contact (
+            name = "João Victor Dias",
+            email = "kvj1610@hotmail.com",
+            url = "https://github.com/silverfoxjv"
+        ), version = "v1.0"
+    ),
+    basePath = "/api",
+    schemes = {SwaggerDefinition.Scheme.HTTP}
+)
 public class PlanetResource {
 
 	@Inject
