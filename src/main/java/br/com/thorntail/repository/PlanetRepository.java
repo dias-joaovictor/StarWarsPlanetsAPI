@@ -1,6 +1,5 @@
 package br.com.thorntail.repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -73,7 +72,7 @@ public class PlanetRepository {
 				//
 			}
 			if (planetFound != null) {
-				merge(planet);
+				mergeAndCommit(planet);
 			} else {
 				throw new PlanetNotFoundException("No planet found with id: " + planet.getId());
 			}
@@ -84,20 +83,35 @@ public class PlanetRepository {
 
 	private void merge(Planet planet, Planet planetFound) {
 		planet.setId(planetFound.getId());
-		merge(planet);
+		mergeAndCommit(planet);
 	}
 
-	private void merge(Planet planet) {
-		entityManager.getTransaction().begin();
-		entityManager.merge(planet);
-		entityManager.getTransaction().commit();
+	private void mergeAndCommit(Planet planet) {
+		if(entityManager.getTransaction().isActive()) {
+			entityManager.getTransaction().rollback();
+		}
+		try {
+			entityManager.getTransaction().begin();
+			entityManager.merge(planet);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+		}
 	}
 
 	private void saveAndCommit(Planet planet) {
-		entityManager.getTransaction().begin();
-		entityManager.persist(planet);
-		entityManager.getTransaction().commit();
-		;
+
+		if(entityManager.getTransaction().isActive()) {
+			entityManager.getTransaction().rollback();
+		}
+		try {
+			entityManager.getTransaction().begin();
+			entityManager.persist(planet);
+			entityManager.getTransaction().commit();
+			
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+		}
 	}
 
 	public void persistirTest() {
@@ -108,6 +122,29 @@ public class PlanetRepository {
 		entityManager.getTransaction().begin();
 		entityManager.persist(planet);
 		entityManager.getTransaction().commit();
+	}
+
+	public void delete(Long id) throws PlanetNotFoundException, BusinessException{
+		if(id != null) {
+			Planet planetFound = findById(id);
+			deleteAndCommit(planetFound);
+		}else{
+			throw new BusinessException("id can not be Null");
+		}
+		
+	}
+
+	private void deleteAndCommit(Planet planetFound) {
+		if(entityManager.getTransaction().isActive()) {
+			entityManager.getTransaction().rollback();
+		}
+		try {
+			entityManager.getTransaction().begin();
+			entityManager.remove(planetFound);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+		}
 	}
 
 }
